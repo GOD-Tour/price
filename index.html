@@ -2,10 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>갓투어 자동 견적</title>
+  <title>세부 호핑팩 데이투어 | 자동 견적</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- 엑셀(xlsx) 읽기 라이브러리 -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -15,13 +13,13 @@
       background: #f5f5f7;
     }
     .app {
-      max-width: 720px;
+      max-width: 900px;
       margin: 0 auto;
     }
     .card {
       background: #ffffff;
       border-radius: 18px;
-      padding: 20px 20px 16px;
+      padding: 20px 20px 18px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
     }
     h1 {
@@ -34,28 +32,71 @@
       margin-bottom: 16px;
       line-height: 1.5;
     }
-    label {
-      display: block;
+    .layout {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .left, .right {
+      flex: 1 1 320px;
+    }
+    .info-block {
+      margin-bottom: 16px;
       font-size: 13px;
-      margin-bottom: 6px;
+    }
+    .info-block dl {
+      margin: 0 0 8px;
+      display: flex;
+    }
+    .info-block dt {
+      width: 80px;
       font-weight: 600;
+      color: #555;
+    }
+    .info-block dd {
+      margin: 0;
+      color: #333;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 8px 10px;
+    }
+    th {
+      background: #fafafa;
+      font-weight: 600;
+    }
+    .c_red {
+      color: #c62828;
+      font-weight: 700;
+    }
+    .unit {
+      color: #777;
+      font-size: 12px;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
     }
     select, input[type="number"] {
       width: 100%;
-      padding: 9px 10px;
+      padding: 8px 10px;
       border-radius: 10px;
       border: 1px solid #ddd;
       font-size: 14px;
       outline: none;
-      transition: border 0.15s, box-shadow 0.15s;
       background: #fff;
+      transition: border 0.15s, box-shadow 0.15s;
     }
     select:focus, input:focus {
       border-color: #333;
       box-shadow: 0 0 0 1px #3332;
-    }
-    .field {
-      margin-bottom: 12px;
     }
     .row {
       display: flex;
@@ -64,35 +105,12 @@
     .col {
       flex: 1;
     }
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      background: #f0f0f3;
-      color: #555;
-      margin-left: 6px;
+    .field {
+      margin-bottom: 12px;
     }
-    .status {
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 10px;
-    }
-    .status.ok { color: #2b7a0b; }
-    .status.err { color: #c62828; }
-    .range-note {
-      font-size: 12px;
-      color: #666;
-      margin-top: 2px;
-    }
-    .error-msg {
-      font-size: 12px;
-      color: #c62828;
-      margin-top: 4px;
-    }
-    .result {
-      margin-top: 16px;
-      padding-top: 12px;
+    .result-box {
+      margin-top: 12px;
+      padding-top: 10px;
       border-top: 1px dashed #ddd;
       font-size: 14px;
     }
@@ -108,11 +126,11 @@
       font-weight: 600;
     }
     .result-total {
-      font-size: 17px;
-      font-weight: 700;
       margin-top: 6px;
       padding-top: 6px;
       border-top: 1px solid #eee;
+      font-size: 16px;
+      font-weight: 700;
     }
     .note {
       margin-top: 6px;
@@ -120,14 +138,58 @@
       color: #888;
       line-height: 1.4;
     }
-    .footer {
-      margin-top: 10px;
-      font-size: 11px;
-      color: #aaa;
-      text-align: right;
+    .total-box {
+      margin-top: 16px;
+      padding: 14px 12px;
+      border-radius: 14px;
+      background: #f9fafb;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
     }
-    @media (max-width: 480px) {
-      .card { padding: 16px 14px 12px; }
+    .total-text {
+      font-size: 11px;
+      color: #777;
+      line-height: 1.4;
+    }
+    .total-price-main {
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .total-sub {
+      font-size: 13px;
+      color: #555;
+      margin-top: 2px;
+    }
+    .btn-main {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: #111827;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-main:hover {
+      opacity: 0.92;
+    }
+    .age-guide {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .error {
+      font-size: 12px;
+      color: #c62828;
+      margin-top: 4px;
+    }
+    @media (max-width: 600px) {
+      .card { padding: 16px 14px 14px; }
       h1 { font-size: 18px; }
     }
   </style>
@@ -135,360 +197,296 @@
 <body>
   <div class="app">
     <div class="card">
-      <h1>갓투어 자동 견적</h1>
+      <h1>세부 호핑팩 데이투어 자동 견적</h1>
       <div class="subtitle">
-        투어를 선택하고 성인 / 아동 인원만 입력하면<br>
-        예약금 · 현장 잔금 · 총 금액이 자동으로 계산됩니다.
+        성인 / 아동 인원을 입력하면<br>
+        <strong>예약금(원)</strong>과 <strong>현장 잔금(USD)</strong>을 한 번에 확인할 수 있습니다.
       </div>
 
-      <div id="loadStatus" class="status">요금표(엑셀) 불러오는 중...</div>
+      <div class="layout">
+        <!-- LEFT: 상품 정보 & 1인 가격표 -->
+        <div class="left">
+          <div class="info-block">
+            <dl>
+              <dt>상품명</dt>
+              <dd>세부점 :: 호핑팩 데이투어</dd>
+            </dl>
+            <dl>
+              <dt>여행기간</dt>
+              <dd>당일</dd>
+            </dl>
+            <dl>
+              <dt>출발지</dt>
+              <dd>리조트 픽업 (단독차량)</dd>
+            </dl>
+            <dl>
+              <dt>시간</dt>
+              <dd><span>시작 10:00</span> ~ <span>종료 20:00</span></dd>
+            </dl>
+          </div>
 
-      <!-- 투어 선택 -->
-      <div class="field">
-        <label for="tourSelect">① 투어 선택</label>
-        <select id="tourSelect" disabled>
-          <option value="">데이터 로딩 중...</option>
-        </select>
-      </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:center;">구분</th>
+                <th style="text-align:right;">인당 예약금액</th>
+                <th style="text-align:right;">잔금 (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="text-align:right;"><strong>성인</strong> <span class="unit">(만 12세 이상)</span></td>
+                <td style="text-align:right;"><span class="c_red">20,000원</span></td>
+                <td style="text-align:right;">＄189</td>
+              </tr>
+              <tr>
+                <td style="text-align:right;"><strong>아동</strong> <span class="unit">(24개월 이상~ 만 11세 이하)</span></td>
+                <td style="text-align:right;"><span class="c_red">10,000원</span></td>
+                <td style="text-align:right;">＄39</td>
+              </tr>
+              <tr>
+                <td style="text-align:right;"><strong>영아</strong> <span class="unit">(24개월 미만)</span></td>
+                <td style="text-align:right;"><span class="c_red">0원</span></td>
+                <td style="text-align:right;">무료</td>
+              </tr>
+            </tbody>
+          </table>
 
-      <!-- 인원 입력 -->
-      <div class="row">
-        <div class="col">
-          <div class="field">
-            <label for="adultInput">② 성인 인원</label>
-            <input type="number" id="adultInput" min="1" value="2" disabled />
-            <div id="rangeNote" class="range-note"></div>
+          <div class="age-guide">
+            * 연령 기준은 탑승 / 투어 진행일 기준 만 나이입니다.<br>
+            * 영아는 좌석/식사가 별도 제공되지 않을 수 있습니다.
           </div>
         </div>
-        <div class="col">
+
+        <!-- RIGHT: 인원 선택 & 자동 계산 -->
+        <div class="right">
           <div class="field">
-            <label for="childInput">아동 인원</label>
-            <input type="number" id="childInput" min="0" value="0" disabled />
+            <label for="dateInput">여행일자 (선택)</label>
+            <input type="date" id="dateInput" style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid #ddd; font-size:14px;">
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="field">
+                <label for="adultCount">성인 인원</label>
+                <select id="adultCount">
+                  <!-- 2~10명 기본 -->
+                </select>
+              </div>
+            </div>
+            <div class="col">
+              <div class="field">
+                <label for="childCount">아동 인원</label>
+                <select id="childCount">
+                  <!-- 0~10명 -->
+                </select>
+              </div>
+            </div>
+            <div class="col">
+              <div class="field">
+                <label for="infantCount">영아 인원</label>
+                <select id="infantCount">
+                  <!-- 0~5명 -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="errorBox" class="error"></div>
+
+          <div class="result-box">
+            <div class="result-line">
+              <div class="result-label">성인 예약금 합계</div>
+              <div class="result-value" id="adultDepositTotal">0원</div>
+            </div>
+            <div class="result-line">
+              <div class="result-label">아동 예약금 합계</div>
+              <div class="result-value" id="childDepositTotal">0원</div>
+            </div>
+            <div class="result-line">
+              <div class="result-label">영아 예약금 합계</div>
+              <div class="result-value" id="infantDepositTotal">0원</div>
+            </div>
+
+            <div class="result-total" id="totalDepositText">총 예약금: 0원</div>
+
+            <div class="result-line" style="margin-top:6px;">
+              <div class="result-label">성인 잔금 (USD)</div>
+              <div class="result-value" id="adultBalanceTotal">$0</div>
+            </div>
+            <div class="result-line">
+              <div class="result-label">아동 잔금 (USD)</div>
+              <div class="result-value" id="childBalanceTotal">$0</div>
+            </div>
+            <div class="result-line">
+              <div class="result-label">영아 잔금 (USD)</div>
+              <div class="result-value" id="infantBalanceTotal">$0</div>
+            </div>
+
+            <div class="result-line" style="margin-top:4px;">
+              <div class="result-label"><strong>현지에서 결제할 잔금 합계</strong></div>
+              <div class="result-value" id="totalBalanceText">$0</div>
+            </div>
+
+            <div class="result-line">
+              <div class="result-label">총 투어 인원</div>
+              <div class="result-value" id="totalPaxText">0명</div>
+            </div>
+            <div class="result-line">
+              <div class="result-label">1인당 금액 (예약금+잔금 기준, 성인+아동)</div>
+              <div class="result-value" id="perPersonText">-</div>
+            </div>
+
+            <div class="note">
+              * 총 결제금액은 예약금 기준이며, 잔금(USD)은 현지에서 가이드에게 직접 결제합니다.<br>
+              * 환율에 따라 실제 원화 금액은 변동될 수 있습니다.
+            </div>
+          </div>
+
+          <div class="total-box">
+            <div>
+              <div class="total-price-main" id="summaryMain">총 예약금 0원 · 잔금 $0</div>
+              <div class="total-sub" id="summarySub">인원 선택 후 자동으로 계산됩니다.</div>
+            </div>
+            <div>
+              <button class="btn-main" type="button" onclick="alert('실제 예약은 카카오톡/문의 채널로 연결해주세요.');">
+                이 인원으로 문의하기
+              </button>
+            </div>
+          </div>
+
+          <div class="total-text">
+            ※ 실제 예약/변경/취소는 갓투어 카카오채널 또는 상담 채널을 통해 진행됩니다.
           </div>
         </div>
       </div>
-
-      <div id="errorMsg" class="error-msg"></div>
-
-      <!-- 결과 -->
-      <div class="result">
-        <div class="result-line">
-          <div class="result-label">성인 예약금</div>
-          <div class="result-value" id="adultDeposit">₩ 0</div>
-        </div>
-        <div class="result-line">
-          <div class="result-label">성인 잔금</div>
-          <div class="result-value" id="adultBalance">₩ 0</div>
-        </div>
-        <div class="result-line">
-          <div class="result-label">아동 예약금</div>
-          <div class="result-value" id="childDeposit">₩ 0</div>
-        </div>
-        <div class="result-line">
-          <div class="result-label">아동 잔금</div>
-          <div class="result-value" id="childBalance">₩ 0</div>
-        </div>
-
-        <div class="result-total" id="totalDeposit">총 예약금: ₩ 0</div>
-        <div class="result-line">
-          <div class="result-label">현장 잔금 합계</div>
-          <div class="result-value" id="totalBalance">₩ 0</div>
-        </div>
-        <div class="result-line">
-          <div class="result-label">총 투어 금액 (예약금+잔금)</div>
-          <div class="result-value" id="grandTotal">₩ 0</div>
-        </div>
-        <div class="result-line">
-          <div class="result-label">1인당 금액 (성인+아동 기준)</div>
-          <div class="result-value" id="perPerson">₩ 0</div>
-        </div>
-
-        <div class="note">
-          ※ 요금표는 갓투어 내부 엑셀 기준으로 자동 계산됩니다.<br>
-          ※ 성인 요금은 <strong>성인 인원수</strong> 기준, 아동 요금은 별도 1인 요금으로 계산합니다.<br>
-          ※ 실제 결제 전에는 갓투어에서 최종 금액을 다시 한 번 안내드립니다.
-        </div>
-      </div>
-    </div>
-
-    <div class="footer">
-      © GodTour Cebu
     </div>
   </div>
 
   <script>
-    // === 설정: 서버에 올려둘 엑셀 파일 이름 ===================
-    const EXCEL_URL = "gadtour-quote.xlsx"; 
-    // 같은 폴더에 이 이름으로 엑셀 올려두면 됨
-    // ========================================================
+    // ====== 설정 영역 (여기만 바꾸면 다른 투어도 쉽게 재사용 가능) ======
+    const CONFIG = {
+      tourName: "세부점 :: 호핑팩 데이투어",
+      // 1인당 예약금 (원)
+      adultDeposit: 20000,
+      childDeposit: 10000,
+      infantDeposit: 0,
+      // 1인당 현장 잔금 (USD)
+      adultBalanceUSD: 189,
+      childBalanceUSD: 39,
+      infantBalanceUSD: 0,
+      // 인원 선택 범위
+      adultMin: 2,
+      adultMax: 10,
+      childMax: 10,
+      infantMax: 5
+    };
 
-    let TOURS = {}; // { "체험 다이빙": {minPax, maxPax, adults:{2:{...}}, child:{...}} }
+    const adultSelect = document.getElementById("adultCount");
+    const childSelect = document.getElementById("childCount");
+    const infantSelect = document.getElementById("infantCount");
+    const errorBox = document.getElementById("errorBox");
 
-    const $status       = document.getElementById("loadStatus");
-    const $tourSelect   = document.getElementById("tourSelect");
-    const $adultInput   = document.getElementById("adultInput");
-    const $childInput   = document.getElementById("childInput");
-    const $rangeNote    = document.getElementById("rangeNote");
-    const $errorMsg     = document.getElementById("errorMsg");
-
-    const $adultDeposit  = document.getElementById("adultDeposit");
-    const $adultBalance  = document.getElementById("adultBalance");
-    const $childDeposit  = document.getElementById("childDeposit");
-    const $childBalance  = document.getElementById("childBalance");
-    const $totalDeposit  = document.getElementById("totalDeposit");
-    const $totalBalance  = document.getElementById("totalBalance");
-    const $grandTotal    = document.getElementById("grandTotal");
-    const $perPerson     = document.getElementById("perPerson");
-
-    function formatKRW(value) {
-      const num = Number(value) || 0;
-      return "₩ " + num.toLocaleString("ko-KR");
-    }
-
-    function clearResult() {
-      $adultDeposit.textContent = "₩ 0";
-      $adultBalance.textContent = "₩ 0";
-      $childDeposit.textContent = "₩ 0";
-      $childBalance.textContent = "₩ 0";
-      $totalDeposit.textContent = "총 예약금: ₩ 0";
-      $totalBalance.textContent = "₩ 0";
-      $grandTotal.textContent   = "₩ 0";
-      $perPerson.textContent    = "₩ 0";
-    }
-
-    function parseLabel(label) {
-      if (!label) return null;
-      label = String(label).trim();
-      if (!label) return null;
-
-      // "...아동" 인 경우 → 아동 요금
-      if (label.endsWith("아동")) {
-        return { base: label.slice(0, -2), isChild: true, pax: null };
-      }
-      // 맨 끝에 숫자 붙은 경우 (예: 체험 다이빙2, 고래상어10)
-      const m = label.match(/^(.*?)(\d+)$/);
-      if (m) {
-        return {
-          base: m[1].trim(),
-          isChild: false,
-          pax: parseInt(m[2], 10)
-        };
-      }
-      // 그 외 (공항픽업3박 투어 이런 거) → 숫자 못 뽑으면 나중에 인원 컬럼으로 시도
-      return { base: label, isChild: false, pax: null };
-    }
-
-    function buildToursFromRows(rows) {
-      const tmp = {}; // {baseName: {adults:{}, child:{...}}}
-
-      rows.forEach(row => {
-        const label = row["Unnamed: 0"];
-        if (!label) return;
-
-        const parsed = parseLabel(label);
-        if (!parsed) return;
-        const { base, isChild, pax: paxFromLabel } = parsed;
-
-        if (!tmp[base]) {
-          tmp[base] = { adults: {}, child: null };
-        }
-
-        const dep = row["예약금"];
-        const bal = row["투어잔금"];
-        const tot = row["총 투여금액"];
-
-        const allEmpty = (dep == null || dep === "" || dep === "무료제공") &&
-                         (bal == null || bal === "" || bal === "무료제공") &&
-                         (tot == null || tot === "");
-        if (allEmpty) return;
-
-        const deposit = (dep === "무료제공") ? 0 : Number(dep) || 0;
-        const balance = (bal === "무료제공") ? 0 : Number(bal) || 0;
-        const total   = Number(tot) || (deposit + balance);
-
-        if (isChild) {
-          tmp[base].child = { deposit, balance, total };
-          return;
-        }
-
-        let pax = paxFromLabel;
-        if (pax == null) {
-          const paxIn = row["인원"];
-          if (typeof paxIn === "number" && Number.isFinite(paxIn)) {
-            pax = paxIn;
-          }
-        }
-        if (pax == null) return;
-
-        tmp[base].adults[pax] = { deposit, balance, total };
-      });
-
-      // min/max 인원 계산 + 쓸모 없는 투어 제거
-      TOURS = {};
-      Object.keys(tmp).forEach(name => {
-        const adults = tmp[name].adults;
-        const paxKeys = Object.keys(adults).map(v => parseInt(v, 10)).sort((a,b)=>a-b);
-        if (!paxKeys.length) return;
-
-        TOURS[name] = {
-          adults,
-          child: tmp[name].child,
-          minPax: paxKeys[0],
-          maxPax: paxKeys[paxKeys.length - 1]
-        };
-      });
-    }
-
-    function populateTourSelect() {
-      $tourSelect.innerHTML = "";
-      const names = Object.keys(TOURS).sort((a,b)=>a.localeCompare(b, "ko-KR"));
-
-      if (!names.length) {
-        $tourSelect.innerHTML = `<option value="">투어 데이터를 찾을 수 없습니다</option>`;
-        $tourSelect.disabled = true;
-        $adultInput.disabled = true;
-        $childInput.disabled = true;
-        return;
-      }
-
-      const ph = document.createElement("option");
-      ph.value = "";
-      ph.textContent = "투어를 선택해주세요";
-      $tourSelect.appendChild(ph);
-
-      names.forEach(name => {
+    function fillSelect(select, min, max, defaultValue) {
+      select.innerHTML = "";
+      for (let i = min; i <= max; i++) {
         const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
-        $tourSelect.appendChild(opt);
-      });
-
-      $tourSelect.disabled = false;
-      $adultInput.disabled = false;
-      $childInput.disabled = false;
-
-      $status.textContent = `요금표 로딩 완료 (투어 ${names.length}개)`;
-      $status.className = "status ok";
-    }
-
-    function updateRangeNote() {
-      const name = $tourSelect.value;
-      if (!name || !TOURS[name]) {
-        $rangeNote.textContent = "";
-        return;
-      }
-      const t = TOURS[name];
-      $rangeNote.textContent = `※ 성인 ${t.minPax}명 ~ ${t.maxPax}명까지 요금이 등록되어 있습니다.`;
-      if (Number($adultInput.value) < t.minPax || Number($adultInput.value) > t.maxPax) {
-        $adultInput.value = t.minPax;
+        opt.value = i;
+        opt.textContent = i;
+        if (i === defaultValue) opt.selected = true;
+        select.appendChild(opt);
       }
     }
 
-    function calculate() {
-      clearResult();
-      $errorMsg.textContent = "";
+    // 인원 select 초기화
+    fillSelect(adultSelect, CONFIG.adultMin, CONFIG.adultMax, CONFIG.adultMin);
+    fillSelect(childSelect, 0, CONFIG.childMax, 0);
+    fillSelect(infantSelect, 0, CONFIG.infantMax, 0);
 
-      const name = $tourSelect.value;
-      if (!name || !TOURS[name]) return;
+    // 결과 표시 요소
+    const adultDepositTotal = document.getElementById("adultDepositTotal");
+    const childDepositTotal = document.getElementById("childDepositTotal");
+    const infantDepositTotal = document.getElementById("infantDepositTotal");
+    const totalDepositText = document.getElementById("totalDepositText");
 
-      const t = TOURS[name];
+    const adultBalanceTotal = document.getElementById("adultBalanceTotal");
+    const childBalanceTotal = document.getElementById("childBalanceTotal");
+    const infantBalanceTotal = document.getElementById("infantBalanceTotal");
+    const totalBalanceText = document.getElementById("totalBalanceText");
 
-      const adultCount = parseInt($adultInput.value, 10) || 0;
-      const childCount = parseInt($childInput.value, 10) || 0;
+    const totalPaxText = document.getElementById("totalPaxText");
+    const perPersonText = document.getElementById("perPersonText");
 
-      if (adultCount <= 0) {
-        $errorMsg.textContent = "성인 인원은 1명 이상이어야 합니다.";
-        return;
-      }
-      if (adultCount < t.minPax || adultCount > t.maxPax) {
-        $errorMsg.textContent = `이 투어는 성인 ${t.minPax}~${t.maxPax}명까지만 요금이 등록되어 있습니다.`;
-        return;
-      }
+    const summaryMain = document.getElementById("summaryMain");
+    const summarySub = document.getElementById("summarySub");
+    const dateInput = document.getElementById("dateInput");
 
-      const adultRow = t.adults[adultCount];
-      if (!adultRow) {
-        $errorMsg.textContent = "해당 성인 인원에 대한 요금이 존재하지 않습니다.";
-        return;
-      }
+    function formatKRW(n) {
+      return (Number(n) || 0).toLocaleString("ko-KR") + "원";
+    }
+    function formatUSD(n) {
+      return "$" + (Number(n) || 0).toLocaleString("en-US");
+    }
 
-      // 성인 요금
-      const aDep = adultRow.deposit;
-      const aBal = adultRow.balance;
-      const aTot = adultRow.total || (aDep + aBal);
+    function calc() {
+      errorBox.textContent = "";
 
-      // 아동 요금
-      let cDep = 0, cBal = 0, cTot = 0;
-      if (childCount > 0) {
-        if (t.child) {
-          cDep = t.child.deposit * childCount;
-          cBal = t.child.balance * childCount;
-          cTot = t.child.total * childCount;
-        } else {
-          // 아동 요금이 엑셀에 없으면 그냥 0 처리
-          $errorMsg.textContent = "이 투어는 별도 아동 요금이 등록되어 있지 않습니다. (성인 요금만 계산됨)";
-        }
+      const adult = parseInt(adultSelect.value, 10) || 0;
+      const child = parseInt(childSelect.value, 10) || 0;
+      const infant = parseInt(infantSelect.value, 10) || 0;
+
+      if (adult < CONFIG.adultMin) {
+        errorBox.textContent = `성인은 최소 ${CONFIG.adultMin}명 이상이어야 합니다.`;
       }
 
-      const totalDep = aDep + cDep;
-      const totalBal = aBal + cBal;
-      const grand    = aTot + cTot;
+      const adultDep = adult * CONFIG.adultDeposit;
+      const childDep = child * CONFIG.childDeposit;
+      const infantDep = infant * CONFIG.infantDeposit;
+      const totalDep = adultDep + childDep + infantDep;
 
-      $adultDeposit.textContent = formatKRW(aDep);
-      $adultBalance.textContent = formatKRW(aBal);
-      $childDeposit.textContent = formatKRW(cDep);
-      $childBalance.textContent = formatKRW(cBal);
+      const adultBal = adult * CONFIG.adultBalanceUSD;
+      const childBal = child * CONFIG.childBalanceUSD;
+      const infantBal = infant * CONFIG.infantBalanceUSD;
+      const totalBal = adultBal + childBal + infantBal;
 
-      $totalDeposit.textContent = "총 예약금: " + formatKRW(totalDep);
-      $totalBalance.textContent = formatKRW(totalBal);
-      $grandTotal.textContent   = formatKRW(grand);
+      const totalPax = adult + child + infant;
 
-      const totalPax = adultCount + childCount;
-      if (totalPax > 0) {
-        $perPerson.textContent = formatKRW(Math.round(grand / totalPax));
+      adultDepositTotal.textContent = formatKRW(adultDep);
+      childDepositTotal.textContent = formatKRW(childDep);
+      infantDepositTotal.textContent = formatKRW(infantDep);
+      totalDepositText.textContent = "총 예약금: " + formatKRW(totalDep);
+
+      adultBalanceTotal.textContent = formatUSD(adultBal);
+      childBalanceTotal.textContent = formatUSD(childBal);
+      infantBalanceTotal.textContent = formatUSD(infantBal);
+      totalBalanceText.textContent = formatUSD(totalBal);
+
+      totalPaxText.textContent = totalPax + "명";
+
+      if (adult + child > 0) {
+        const avgPerPersonUSD = totalBal / (adult + child);
+        perPersonText.textContent = formatUSD(avgPerPersonUSD.toFixed(0)) + " (1인 잔금 기준)";
       } else {
-        $perPerson.textContent = "₩ 0";
+        perPersonText.textContent = "-";
+      }
+
+      summaryMain.textContent = `총 예약금 ${formatKRW(totalDep)} · 잔금 ${formatUSD(totalBal)}`;
+
+      const dateVal = dateInput.value;
+      if (dateVal) {
+        summarySub.textContent = `${dateVal} 기준 ${totalPax}명 기준 견적입니다.`;
+      } else {
+        summarySub.textContent = `${totalPax}명 기준 임시 견적입니다.`;
       }
     }
 
-    async function loadExcel() {
-      try {
-        $status.textContent = "요금표(엑셀) 불러오는 중...";
-        const res = await fetch(EXCEL_URL);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const arrayBuffer = await res.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: "array" });
+    adultSelect.addEventListener("change", calc);
+    childSelect.addEventListener("change", calc);
+    infantSelect.addEventListener("change", calc);
+    dateInput.addEventListener("change", calc);
 
-        const sheetName = workbook.SheetNames[0]; // 첫 번째 시트 사용 (지금 엑셀은 '투어 가격 ')
-        const sheet = workbook.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json(sheet, { defval: null });
-
-        buildToursFromRows(rows);
-        populateTourSelect();
-        clearResult();
-      } catch (err) {
-        console.error(err);
-        $status.textContent = "엑셀 파일을 불러오는 데 실패했습니다. 파일 이름/위치를 확인해주세요.";
-        $status.className = "status err";
-        $tourSelect.disabled = true;
-        $adultInput.disabled = true;
-        $childInput.disabled = true;
-      }
-    }
-
-    // 이벤트
-    document.addEventListener("DOMContentLoaded", () => {
-      loadExcel();
-      $tourSelect.addEventListener("change", () => {
-        updateRangeNote();
-        calculate();
-      });
-      $adultInput.addEventListener("input", () => {
-        calculate();
-      });
-      $childInput.addEventListener("input", () => {
-        calculate();
-      });
-    });
+    // 첫 계산
+    calc();
   </script>
 </body>
 </html>
